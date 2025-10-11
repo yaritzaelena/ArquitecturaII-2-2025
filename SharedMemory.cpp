@@ -1,15 +1,13 @@
 #include "SharedMemory.h"
 #include <cstring>
+#include <iostream>
 
 static constexpr size_t MEM_WORDS = 512;            // 512 posiciones de 64 bits
 static constexpr size_t WORD_BYTES = 8;             // 64 bits = 8 bytes
 static constexpr size_t MEM_BYTES = MEM_WORDS * WORD_BYTES; // 512 * 8 = 4096
-static constexpr size_t DEFAULT_CACHE_LINE = 32;
+static constexpr size_t CACHE_LINE_SIZE = 32;       // Tamaño estándar de línea de caché
 
-SharedMemory::SharedMemory(size_t cache_line_bytes)
-    : memory(MEM_BYTES, 0),
-      cache_line_size(cache_line_bytes ? cache_line_bytes : DEFAULT_CACHE_LINE)
-{}
+SharedMemory::SharedMemory() : memory(MEM_BYTES, 0) {}
 
 void SharedMemory::handle_message(MessageP msg, std::function<void(MessageP)> send_response) {
     if (!msg) return;
@@ -31,7 +29,7 @@ void SharedMemory::handle_read(MessageP msg, std::function<void(MessageP)> send_
     uint32_t addr = msg->payload.read_mem.address;
     uint32_t size = msg->payload.read_mem.size;
 
-    MessageP resp = std::make_shared<Message>(MessageType::READ_RESP, -1, msg->src, msg->qos);
+    MessageP resp = std::make_shared<Message>(MessageType::READ_RESP, msg->src, -1);
     resp->payload.read_resp.address = addr;
     resp->payload.read_resp.size = size;
 
@@ -46,8 +44,6 @@ void SharedMemory::handle_read(MessageP msg, std::function<void(MessageP)> send_
     {
         std::lock_guard<std::mutex> lock(memory_mutex);
         std::memcpy(buffer.data(), memory.data() + addr, size);
-        reads_by_pe[msg->src]++;
-        bytes_read_by_pe[msg->src] += size;
         total_reads++;
     }
 
@@ -58,10 +54,10 @@ void SharedMemory::handle_read(MessageP msg, std::function<void(MessageP)> send_
 
 void SharedMemory::handle_write(MessageP msg, std::function<void(MessageP)> send_response) {
     uint32_t addr = msg->payload.write_mem.address;
-    uint32_t size = msg->payload.write_mem.size ? msg->payload.write_mem.size : cache_line_size;
+    uint32_t size = msg->payload.write_mem.size ? msg->payload.write_mem.size : CACHE_LINE_SIZE;
     const auto &data = msg->data_write;
 
-    MessageP resp = std::make_shared<Message>(MessageType::WRITE_RESP, -1, msg->src, msg->qos);
+    MessageP resp = std::make_shared<Message>(MessageType::WRITE_RESP, msg->src, -1);
     resp->payload.write_resp.address = addr;
 
     if (size == 0 || addr > MEM_BYTES || size > MEM_BYTES || addr > MEM_BYTES - size) {
@@ -72,7 +68,7 @@ void SharedMemory::handle_write(MessageP msg, std::function<void(MessageP)> send
     }
 
     if (data.size() < size) {
-        std::cerr << "[SharedMemory] Error: data_write menor que tamaño esperado\n";
+        std::cerr << "[SharedMemory] Error: tamaño de datos insuficiente\n";
         resp->payload.write_resp.status = 0x0;
         send_response(resp);
         return;
@@ -81,8 +77,6 @@ void SharedMemory::handle_write(MessageP msg, std::function<void(MessageP)> send
     {
         std::lock_guard<std::mutex> lock(memory_mutex);
         std::memcpy(memory.data() + addr, data.data(), size);
-        writes_by_pe[msg->src]++;
-        bytes_written_by_pe[msg->src] += size;
         total_writes++;
     }
 
@@ -92,13 +86,7 @@ void SharedMemory::handle_write(MessageP msg, std::function<void(MessageP)> send
 
 void SharedMemory::dump_stats(std::ostream &os) {
     std::lock_guard<std::mutex> lock(memory_mutex);
-    os << "\n=== SharedMemory Stats ===\n";
-    os << "Total reads: " << total_reads << ", Total writes: " << total_writes << "\n";
-    for (auto &kv : reads_by_pe) {
-        int pe = kv.first;
-        os << "PE " << pe << ": reads=" << kv.second
-           << ", bytes=" << bytes_read_by_pe[pe]
-           << ", writes=" << writes_by_pe[pe]
-           << ", bytes_written=" << bytes_written_by_pe[pe] << "\n";
-    }
+    os << "\n=== Estadísticas de SharedMemory ===\n";
+    os << "Total de lecturas: " << total_reads << "\n";
+    os << "Total de escrituras: " << total_writes << "\n";
 }

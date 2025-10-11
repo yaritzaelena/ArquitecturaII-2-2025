@@ -5,8 +5,8 @@
 #include <mutex>
 #include <functional>
 #include <cstdint>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 #include <iostream>
 
 // -------------------------
@@ -21,9 +21,8 @@ enum class MessageType {
 
 struct Message {
     MessageType type;
-    int src;
-    int dst;
-    int qos;
+    int src;   // Identificador del procesador emisor
+    int dst;   // Destino del mensaje
 
     struct {
         struct { uint32_t address; uint32_t size; } read_mem;
@@ -32,11 +31,11 @@ struct Message {
         struct { uint32_t address; uint8_t status; } write_resp;
     } payload;
 
-    std::vector<uint8_t> read_resp_data;
-    std::vector<uint8_t> data_write;
+    std::vector<uint8_t> read_resp_data;  // Datos leídos
+    std::vector<uint8_t> data_write;      // Datos a escribir
 
-    Message(MessageType t, int d, int s, int q)
-        : type(t), src(s), dst(d), qos(q) {}
+    Message(MessageType t, int d, int s)
+        : type(t), src(s), dst(d) {}
 };
 
 using MessageP = std::shared_ptr<Message>;
@@ -46,10 +45,8 @@ using MessageP = std::shared_ptr<Message>;
 // -------------------------
 class SharedMemory {
 public:
-    explicit SharedMemory(size_t cache_line_bytes = 32);
+    SharedMemory();
     void handle_message(MessageP msg, std::function<void(MessageP)> send_response);
-
-    // Para depuración
     void dump_stats(std::ostream &os = std::cout);
 
 private:
@@ -59,16 +56,9 @@ private:
     std::vector<uint8_t> memory;
     std::mutex memory_mutex;
 
-    // Estadísticas
-    std::unordered_map<int, uint64_t> reads_by_pe;
-    std::unordered_map<int, uint64_t> writes_by_pe;
-    std::unordered_map<int, uint64_t> bytes_read_by_pe;
-    std::unordered_map<int, uint64_t> bytes_written_by_pe;
-
+    // Estadísticas básicas
     uint64_t total_reads = 0;
     uint64_t total_writes = 0;
-
-    size_t cache_line_size;
 };
 
 #endif // SHARED_MEMORY_H
