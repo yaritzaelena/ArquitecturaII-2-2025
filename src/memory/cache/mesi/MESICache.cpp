@@ -2,6 +2,9 @@
 #include "MesiDebug.hpp"
 #include <cstring>
 #include <cassert>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 MESICache::MESICache(int pe_id, const MesiBusIface& bus)
   : pe_id_(pe_id), bus_(bus) {
@@ -19,7 +22,6 @@ auto MESICache::lookupLine(uint64_t addr) -> Lookup {
 }
 
 void MESICache::touchLRU(uint32_t s, int way_mru) {
-  // 2-way: marca al contrario como LRU si este fue MRU
   sets_[s].lru = (way_mru==0) ? 1 : 0;
 }
 
@@ -29,6 +31,10 @@ int MESICache::victimWay(uint32_t s) const {
 
 void MESICache::recordTrans(MESI from, MESI to) {
   metrics_.mesi_trans[(int)from][(int)to]++;
+  std::stringstream ss;
+  ss << "MESI: " 
+     << (int)from << "->" << (int)to;
+  metrics_.mesi_transitions.push_back(ss.str());
 }
 
 void MESICache::emitBusRd(uint64_t addr) {
@@ -58,7 +64,6 @@ void MESICache::emitInv(uint64_t addr) {
 void MESICache::installLine(uint64_t addr, const uint8_t data[32], MESI st) {
   uint32_t s = idx(addr);
   uint64_t t = tag(addr);
-  // buscar free o usar víctima
   int way = -1;
   for (int w=0; w<kWays; ++w) {
     if (!sets_[s].way[w].valid || sets_[s].way[w].state==MESI::I) { way=w; break; }
@@ -67,7 +72,6 @@ void MESICache::installLine(uint64_t addr, const uint8_t data[32], MESI st) {
     way = victimWay(s);
     auto& V = sets_[s].way[way];
     if (V.valid && V.state==MESI::M) {
-      // Flush por write-back
       emitFlush(addr & ~((uint64_t)kLineSize-1), V.data.data());
     }
   }
@@ -102,10 +106,9 @@ bool MESICache::load(uint64_t addr, void* out8) {
     return true;
   }
 
-  // MISS => BusRd
-  metrics_.misses++;
+  metrics_.cache_misses++;
   emitBusRd(addr);
-  return false; // reintentar tras onDataResponse
+  return false;
 }
 
 bool MESICache::store(uint64_t addr, const void* in8) {
@@ -115,10 +118,9 @@ bool MESICache::store(uint64_t addr, const void* in8) {
   uint32_t o = off(addr);
 
   if (!L.hit || L.line->state==MESI::I) {
-    // MISS con intención de escritura => BusRdX (write-allocate)
-    metrics_.misses++;
+    metrics_.cache_misses++;
     emitBusRdX(addr);
-    return false; // reintentar tras onDataResponse
+    return false;
   }
 
   switch (L.line->state) {
@@ -129,20 +131,17 @@ bool MESICache::store(uint64_t addr, const void* in8) {
       L.line->state = MESI::M; L.line->dirty = true;
       write8(*L.line, o, in8); touchLRU(s, L.way); return true;
     case MESI::S:
-      // Upgrade en bus y luego escribir
       emitBusUpgr(addr);
       recordTrans(MESI::S, MESI::M);
       L.line->state = MESI::M; L.line->dirty = true;
       write8(*L.line, o, in8); touchLRU(s, L.way); return true;
     case MESI::I:
-      // caímos arriba
       break;
   }
   return false;
 }
 
 void MESICache::onDataResponse(uint64_t addr, const uint8_t lineData[32], bool shared) {
-  // shared==true -> instala S; si no hay compartición -> E
   installLine(addr, lineData, shared ? MESI::S : MESI::E);
 }
 
@@ -156,7 +155,6 @@ void MESICache::onSnoop(const BusTransaction& t) {
     switch (t.type) {
       case BusMsg::BusRd:
         if (L.state==MESI::M) {
-          // Degrade M->S y Flush datos
           emitFlush(t.addr, L.data.data());
           recordTrans(MESI::M, MESI::S);
           L.state = MESI::S; L.dirty=false;
@@ -164,23 +162,9 @@ void MESICache::onSnoop(const BusTransaction& t) {
           recordTrans(MESI::E, MESI::S);
           L.state = MESI::S;
         }
-        // S/I => sin cambio
         break;
-
       case BusMsg::BusRdX:
       case BusMsg::Inv:
-        if (L.state==MESI::M) {
-          emitFlush(t.addr, L.data.data());
-        }
-        if (L.state != MESI::I) {
-          metrics_.invalidations++;
-          recordTrans(L.state, MESI::I);
-          L.state = MESI::I; L.dirty=false;
-        }
-        break;
-
-      case BusMsg::BusUpgr:
-        // Si otro quiere upgrade y yo tengo S/E/M sobre la misma línea => invalido
         if (L.state==MESI::M) emitFlush(t.addr, L.data.data());
         if (L.state != MESI::I) {
           metrics_.invalidations++;
@@ -188,8 +172,39 @@ void MESICache::onSnoop(const BusTransaction& t) {
           L.state = MESI::I; L.dirty=false;
         }
         break;
-
+      case BusMsg::BusUpgr:
+        if (L.state==MESI::M) emitFlush(t.addr, L.data.data());
+        if (L.state != MESI::I) {
+          metrics_.invalidations++;
+          recordTrans(L.state, MESI::I);
+          L.state = MESI::I; L.dirty=false;
+        }
+        break;
       default: break;
     }
   }
 }
+
+void MESICache::dumpCacheState(std::ostream& os) const {
+    os << "=== Estado Cache PE" << pe_id_ << " ===\n";
+    for (size_t s = 0; s < kSets; ++s) {
+        os << "Set " << s << ":\n";
+        for (int w = 0; w < kWays; ++w) {
+            const auto& L = sets_[s].way[w];
+            os << "  Way " << w << ": ";
+            if (!L.valid) { os << "Invalid\n"; continue; }
+
+            const char* st_str = "";
+            switch(L.state) {
+                case MESI::M: st_str = "M"; break;
+                case MESI::E: st_str = "E"; break;
+                case MESI::S: st_str = "S"; break;
+                case MESI::I: st_str = "I"; break;
+            }
+            os << st_str 
+               << " Tag:0x" << std::hex << L.tag 
+               << " Dirty:" << std::dec << L.dirty << "\n";
+        }
+    }
+}
+

@@ -3,6 +3,9 @@
 #include "adapters/InterconnectAdapter.hpp"
 #include <cstdint>
 #include <optional>
+#include <ostream>
+#include <vector>
+#include <sstream>
 
 class MESICache {
 public:
@@ -27,14 +30,46 @@ public:
   // Snoop entrante (el interconnect lo invoca en todos los demás caches)
   void onSnoop(const BusTransaction& t);
 
+  void dumpCacheState(std::ostream& os) const;
+
   // Métricas y depuración
+  struct CacheMetrics {
+    int cache_misses = 0;
+    int invalidations = 0;
+    int loads = 0;
+    int stores = 0;
+    int rw_accesses = 0;
+    int busRd = 0;
+    int busRdX = 0;
+    int busUpgr = 0;
+    int flush = 0;
+    int mesi_trans[4][4] = {{0}};
+    std::vector<std::string> mesi_transitions; // historial legible
+  };
+
   const CacheMetrics& stats() const { return metrics_; }
+
+  void dumpStats(std::ostream& os) const {
+      os << "\n=== Estadísticas Cache PE" << pe_id_ << " ===\n";
+      os << "Cache misses: " << metrics_.cache_misses << "\n";
+      os << "Invalidaciones: " << metrics_.invalidations << "\n";
+      os << "Loads: " << metrics_.loads << "\n";
+      os << "Stores: " << metrics_.stores << "\n";
+      os << "RW Accesses: " << metrics_.rw_accesses << "\n";
+      os << "BusRd: " << metrics_.busRd 
+         << ", BusRdX: " << metrics_.busRdX
+         << ", BusUpgr: " << metrics_.busUpgr 
+         << ", Flush: " << metrics_.flush << "\n";
+      os << "Transiciones MESI:\n";
+      for (const auto& t : metrics_.mesi_transitions)
+          os << "  " << t << "\n";
+  }
 
 private:
   int pe_id_;
   MesiBusIface bus_;
   Set sets_[kSets]{};
-  CacheMetrics metrics_{};
+  CacheMetrics metrics_;
 
   struct Lookup { bool hit; int way; CacheLine* line; };
   static uint32_t idx(uint64_t addr) { return (addr >> kOffsetBits) & ((1u<<kIndexBits)-1); }
