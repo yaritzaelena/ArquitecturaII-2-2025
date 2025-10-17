@@ -5,10 +5,21 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include "MesiInterconnect.hpp"   
 
-MESICache::MESICache(int pe_id, const MesiBusIface& bus)
-  : pe_id_(pe_id), bus_(bus) {
-  // Nada extra; en integración real, bus_.registerSnoopSink(...) lo hará el interconnect
+MESICache::MESICache(int pe_id, MesiInterconnect& bus)
+  : pe_id_(pe_id), bus_(&bus) {}
+
+bool MESICache::hasLine(uint64_t addr) const {
+  const uint32_t s = idx(addr);
+  const uint64_t t = tag(addr);
+  for (int w = 0; w < kWays; ++w) {
+    const auto& L = sets_[s].way[w];
+    if (L.valid && L.tag == t && L.state != MESI::I) {
+      return true;
+    }
+  }
+  return false;
 }
 
 auto MESICache::lookupLine(uint64_t addr) -> Lookup {
@@ -39,27 +50,33 @@ void MESICache::recordTrans(MESI from, MESI to) {
 
 void MESICache::emitBusRd(uint64_t addr) {
   metrics_.busRd++;
-  if (bus_.emit) bus_.emit({BusMsg::BusRd, addr, nullptr, 0, pe_id_});
+  assert(bus_);
+  bus_->emit({BusMsg::BusRd, addr, nullptr, 0, pe_id_});
 }
 
 void MESICache::emitBusRdX(uint64_t addr) {
   metrics_.busRdX++;
-  if (bus_.emit) bus_.emit({BusMsg::BusRdX, addr, nullptr, 0, pe_id_});
+  assert(bus_);
+  bus_->emit({BusMsg::BusRdX, addr, nullptr, 0, pe_id_});
 }
 
 void MESICache::emitBusUpgr(uint64_t addr) {
   metrics_.busUpgr++;
-  if (bus_.emit) bus_.emit({BusMsg::BusUpgr, addr, nullptr, 0, pe_id_});
+  assert(bus_);
+  bus_->emit({BusMsg::BusUpgr, addr, nullptr, 0, pe_id_});
 }
 
-void MESICache::emitFlush(uint64_t addr, const uint8_t data[32]) {
+void MESICache::emitFlush(uint64_t addr, const uint8_t* data) {
   metrics_.flush++;
-  if (bus_.emit) bus_.emit({BusMsg::Flush, addr, data, 32, pe_id_});
+  assert(bus_);
+  bus_->emit({BusMsg::Flush, addr, data, kLineSize, pe_id_});  // usa kLineSize
 }
 
 void MESICache::emitInv(uint64_t addr) {
-  if (bus_.emit) bus_.emit({BusMsg::Inv, addr, nullptr, 0, pe_id_});
+  assert(bus_);
+  bus_->emit({BusMsg::Inv, addr, nullptr, 0, pe_id_});
 }
+
 
 void MESICache::installLine(uint64_t addr, const uint8_t data[32], MESI st) {
   uint32_t s = idx(addr);

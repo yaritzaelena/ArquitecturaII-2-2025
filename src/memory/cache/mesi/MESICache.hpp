@@ -7,8 +7,10 @@
 #include <vector>
 #include <sstream>
 
+class MesiInterconnect; 
 class MESICache {
 public:
+   struct Lookup { bool hit; int way; CacheLine* line; };
   // Parámetros fijos (especificación): 16 líneas totales, 2-way, línea de 32B
   static constexpr int kSets = 8;
   static constexpr int kWays = 2;
@@ -16,7 +18,8 @@ public:
   static constexpr int kOffsetBits = 5; // 32B -> 5 bits
   static constexpr int kIndexBits  = 3; // 8 sets -> 3 bits
 
-  explicit MESICache(int pe_id, const MesiBusIface& bus);
+  MESICache(int pe_id, MesiInterconnect& bus);
+  
 
   // Carga/almacenamiento de 8 bytes alineados dentro de la línea.
   // Devuelven true si fue hit y la operación se completó.
@@ -24,6 +27,8 @@ public:
   bool load(uint64_t addr, void* out8);
   bool store(uint64_t addr, const void* in8);
 
+  Lookup lookupLine(uint64_t addr);
+  bool hasLine(uint64_t addr) const;
   // Llamado por el interconnect cuando llega Data/Flush para este solicitante
   void onDataResponse(uint64_t addr, const uint8_t lineData[32], bool shared);
 
@@ -66,17 +71,17 @@ public:
   }
 
 private:
-  int pe_id_;
-  MesiBusIface bus_;
+  int pe_id_ = -1;
+  MesiInterconnect* bus_ = nullptr;
   Set sets_[kSets]{};
   CacheMetrics metrics_;
 
-  struct Lookup { bool hit; int way; CacheLine* line; };
+  //struct Lookup { bool hit; int way; CacheLine* line; };
   static uint32_t idx(uint64_t addr) { return (addr >> kOffsetBits) & ((1u<<kIndexBits)-1); }
   static uint64_t tag(uint64_t addr) { return addr >> (kOffsetBits + kIndexBits); }
   static uint32_t off(uint64_t addr) { return addr & (kLineSize-1); }
 
-  Lookup lookupLine(uint64_t addr);
+  // Lookup lookupLine(uint64_t addr);
   void   touchLRU(uint32_t s, int way_mru);
   int    victimWay(uint32_t s) const;
   void   recordTrans(MESI from, MESI to);

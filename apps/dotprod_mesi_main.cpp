@@ -7,41 +7,9 @@
 #include <cmath>
 #include <cstdint>
 #include <iostream>
-
+#include "../src/memory/cache/mesi/MesiInterconnect.hpp"
 #include "../src/memory/cache/mesi/MESICache.hpp"
 #include "../PE/pe/pe.hpp"
-
-// ---------------- Interconnect mínimo (síncrono, como en tus tests) ----------------
-struct MesiInterconnect {
-  std::vector<MESICache*> caches;
-  std::vector<uint8_t>    dram;   // memoria principal simulada (en bytes)
-
-  explicit MesiInterconnect(size_t bytes) : dram(bytes, 0) {}
-
-  void connect(MESICache* c) { caches.push_back(c); }
-
-  void emit(const BusTransaction& t) {
-    // 1) Snoops a todos menos al emisor
-    assert(static_cast<size_t>(t.src_pe) < caches.size());
-    for (size_t i = 0; i < caches.size(); ++i) {
-      if (i == static_cast<size_t>(t.src_pe) || !caches[i]) continue;
-      caches[i]->onSnoop(t);
-    }
-    // 2) Si llega Flush, escribir la línea en DRAM (write-back)
-    if (t.type == BusMsg::Flush && t.payload) {
-      const uint64_t base = t.addr & ~((uint64_t)MESICache::kLineSize - 1);
-      std::memcpy(dram.data() + base, t.payload, MESICache::kLineSize);
-    }
-    // 3) Responder Data ante BusRd/BusRdX con la línea de DRAM
-    if (t.type == BusMsg::BusRd || t.type == BusMsg::BusRdX) {
-      const uint64_t base = t.addr & ~((uint64_t)MESICache::kLineSize - 1);
-      std::array<uint8_t, MESICache::kLineSize> line{};
-      std::memcpy(line.data(), dram.data() + base, MESICache::kLineSize);
-      const bool shared = (t.type == BusMsg::BusRd); // simplificación
-      caches[t.src_pe]->onDataResponse(t.addr, line.data(), shared);
-    }
-  }
-};
 
 // ---------------- Métricas simples por puerto ----------------
 struct PortMetrics { uint64_t loads=0, stores=0; };
@@ -96,35 +64,34 @@ static inline void dram_write_double(std::vector<uint8_t>& m, size_t addr, doubl
   for (int i = 0; i < 8; ++i) m[addr + i] = static_cast<uint8_t>((u >> (i * 8)) & 0xFF);
 }
 
-// ---------------- Main de integración: 4 PEs + 4 L1$ MESI + bus + DRAM ----------------
 int main() {
-  // --- Layout de memoria ---
-  const size_t N = 1024;                 // tamaño del vector
+  // --- Parámetros ---
+  // Si quieres cumplir estrictamente la espec (512 palabras), usa N <= 252 (p.ej., N=252).
+  const size_t N = 1024; // puedes bajar a 252 para ajustarte a 512 palabras
   const size_t baseA = 0;
   const size_t baseB = baseA + N * 8;
-  const size_t baseP = baseB + N * 8;    // parciales (4 doubles)
-  const size_t bytes = baseP + 4 * 8 + 4096;
+  const size_t baseP = baseB + N * 8;              // base de parciales
+  const size_t strideP = MESICache::kLineSize;      // 32B por parcial (evita false sharing)
+  const size_t SPEC_MIN_BYTES = 512 * 8;            // mínimo de la espec: 512 palabras de 64b
+  const size_t BYTES_NEEDED = baseP + 4 * strideP;  // A+B + 4 parciales (en líneas separadas)
+  const size_t DRAM_BYTES = std::max(BYTES_NEEDED, SPEC_MIN_BYTES);
+
   const size_t chunk = N / 4;            // 4 PEs → N/4 c/u
   assert(chunk > 0);
 
   // --- Interconnect + DRAM ---
-  MesiInterconnect bus(bytes);
+  MesiInterconnect bus(DRAM_BYTES);
 
   // Inicializa A = [1..N], B = [0.5,1.0,1.5,...], parciales en 0
+  auto& dram = bus.dram();
   for (size_t i = 0; i < N; ++i) {
-    dram_write_double(bus.dram, baseA + i * 8, double(i + 1));
-    dram_write_double(bus.dram, baseB + i * 8, 0.5 * double(i + 1));
+    dram_write_double(dram, baseA + i * 8, double(i + 1));
+    dram_write_double(dram, baseB + i * 8, 0.5 * double(i + 1));
   }
-  for (int k = 0; k < 4; ++k) dram_write_double(bus.dram, baseP + k * 8, 0.0);
+  for (int k = 0; k < 4; ++k) dram_write_double(dram, baseP + k * strideP, 0.0);
 
-  // --- Caches MESI + Iface + conexión al bus ---
-  MesiBusIface if0, if1, if2, if3;
-  if0.emit = [&](const BusTransaction& t) { bus.emit(t); };
-  if1.emit = [&](const BusTransaction& t) { bus.emit(t); };
-  if2.emit = [&](const BusTransaction& t) { bus.emit(t); };
-  if3.emit = [&](const BusTransaction& t) { bus.emit(t); };
-
-  MESICache c0(0, if0), c1(1, if1), c2(2, if2), c3(3, if3);
+  // --- Caches MESI + conexión al bus ---
+  MESICache c0(0, bus), c1(1, bus), c2(2, bus), c3(3, bus);
   bus.connect(&c0); bus.connect(&c1); bus.connect(&c2); bus.connect(&c3);
 
   // --- Puertos de memoria (uno por PE, sobre su L1$) ---
@@ -138,17 +105,17 @@ int main() {
   pe2.load_program(prog); pe3.load_program(prog);
 
   // Segmentos: 4 tramos contiguos
-  const size_t a0 = baseA + 0 * chunk * 8, b0 = baseB + 0 * chunk * 8, o0 = baseP + 0 * 8;
-  const size_t a1 = baseA + 1 * chunk * 8, b1 = baseB + 1 * chunk * 8, o1 = baseP + 1 * 8;
-  const size_t a2 = baseA + 2 * chunk * 8, b2 = baseB + 2 * chunk * 8, o2 = baseP + 2 * 8;
-  const size_t a3 = baseA + 3 * chunk * 8, b3 = baseB + 3 * chunk * 8, o3 = baseP + 3 * 8;
+  const size_t a0 = baseA + 0 * chunk * 8, b0 = baseB + 0 * chunk * 8, o0 = baseP + 0 * strideP;
+  const size_t a1 = baseA + 1 * chunk * 8, b1 = baseB + 1 * chunk * 8, o1 = baseP + 1 * strideP;
+  const size_t a2 = baseA + 2 * chunk * 8, b2 = baseB + 2 * chunk * 8, o2 = baseP + 2 * strideP;
+  const size_t a3 = baseA + 3 * chunk * 8, b3 = baseB + 3 * chunk * 8, o3 = baseP + 3 * strideP;
 
   // Chequeos de rango (evita errores silenciosos)
   assert(a0 + chunk*8 <= baseA + N*8);
   assert(a1 + chunk*8 <= baseA + N*8);
   assert(a2 + chunk*8 <= baseA + N*8);
   assert(a3 + chunk*8 <= baseA + N*8);
-  assert(o3 + 8 <= baseP + 4*8);
+  assert(o3 + 8 <= baseP + 4*strideP);
 
   // Log de segmentos
   std::printf("seg0: A=%zu B=%zu out=%zu len=%zu\n", a0, b0, o0, chunk);
@@ -168,9 +135,21 @@ int main() {
   std::thread t3([&]{ pe3.run(0); });
   t0.join(); t1.join(); t2.join(); t3.join();
 
+  // --- Diagnóstico: leer parciales directo de DRAM (sin caché) ---
+  auto read_double_dram = [&](uint64_t addr)->double{
+    double d;
+    std::memcpy(&d, dram.data() + addr, 8);
+    return d;
+  };
+  double d0 = read_double_dram(o0);
+  double d1 = read_double_dram(o1);
+  double d2 = read_double_dram(o2);
+  double d3 = read_double_dram(o3);
+  std::cout << "DRAM partials = ["<< d0 << ", " << d1 << ", " << d2 << ", " << d3 << "]\n";
+
   // --- Lectura COHERENTE de parciales (a través de la caché/Bus) ---
   auto load_double_coherent = [&](uint64_t addr) -> double {
-    uint64_t u = mp0.load64(addr); // usa un puerto; si otro PE tenía M, hará Flush y downgrade
+    uint64_t u = mp0.load64(addr);
     double d; std::memcpy(&d, &u, 8);
     return d;
   };
@@ -191,7 +170,7 @@ int main() {
   // Métricas de ejemplo (PE0) + métricas por puerto
   const auto& s0 = c0.stats();
   std::printf("PE0 stats: loads=%llu stores=%llu misses=%llu inv=%llu rd=%llu rdx=%llu upg=%llu flush=%llu\n",
-    (unsigned long long)s0.loads, (unsigned long long)s0.stores, (unsigned long long)s0.misses,
+    (unsigned long long)s0.loads, (unsigned long long)s0.stores, (unsigned long long)s0.cache_misses,
     (unsigned long long)s0.invalidations, (unsigned long long)s0.busRd, (unsigned long long)s0.busRdX,
     (unsigned long long)s0.busUpgr, (unsigned long long)s0.flush);
   std::printf("Port ops  : PE0(l=%llu,s=%llu) PE1(l=%llu,s=%llu) PE2(l=%llu,s=%llu) PE3(l=%llu,s=%llu)\n",
@@ -208,5 +187,3 @@ int main() {
     return 1;
   }
 }
-
-

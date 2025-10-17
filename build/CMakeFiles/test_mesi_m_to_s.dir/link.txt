@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/test_mesi_m_to_s.dir/tests/cache/mesi/test_mesi_m_to_s.cpp.o -o test_mesi_m_to_s  libmesi_core.a 
