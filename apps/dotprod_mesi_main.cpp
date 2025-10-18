@@ -135,17 +135,6 @@ int main() {
   std::thread t3([&]{ pe3.run(0); });
   t0.join(); t1.join(); t2.join(); t3.join();
 
-  // --- Diagnóstico: leer parciales directo de DRAM (sin caché) ---
-  auto read_double_dram = [&](uint64_t addr)->double{
-    double d;
-    std::memcpy(&d, dram.data() + addr, 8);
-    return d;
-  };
-  double d0 = read_double_dram(o0);
-  double d1 = read_double_dram(o1);
-  double d2 = read_double_dram(o2);
-  double d3 = read_double_dram(o3);
-  std::cout << "DRAM partials = ["<< d0 << ", " << d1 << ", " << d2 << ", " << d3 << "]\n";
 
   // --- Lectura COHERENTE de parciales (a través de la caché/Bus) ---
   auto load_double_coherent = [&](uint64_t addr) -> double {
@@ -159,6 +148,19 @@ int main() {
   const double p2 = load_double_coherent(o2);
   const double p3 = load_double_coherent(o3);
   const double result = p0 + p1 + p2 + p3;
+
+
+    // --- Diagnóstico: leer parciales directo de DRAM (sin caché) ---
+  auto read_double_dram = [&](uint64_t addr)->double{
+    double d;
+    std::memcpy(&d, dram.data() + addr, 8);
+    return d;
+  };
+  double d0 = read_double_dram(o0);
+  double d1 = read_double_dram(o1);
+  double d2 = read_double_dram(o2);
+  double d3 = read_double_dram(o3);
+  std::cout << "DRAM partials = ["<< d0 << ", " << d1 << ", " << d2 << ", " << d3 << "]\n";
 
   // sum_{i=1..N} i * (0.5 i) = 0.5 * sum i^2 = 0.5 * N(N+1)(2N+1)/6
   const double expected = 0.5 * (double(N) * (N + 1) * (2.0 * N + 1) / 6.0);
