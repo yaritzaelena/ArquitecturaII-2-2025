@@ -83,33 +83,49 @@ CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MESICache.cpp -o CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.s
 
-CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o: CMakeFiles/mesi_core.dir/flags.make
-CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o: /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MesiInterconnect.cpp
-CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o: CMakeFiles/mesi_core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o -MF CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o.d -o CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MesiInterconnect.cpp
+CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o: CMakeFiles/mesi_core.dir/flags.make
+CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o: /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/MesiInterconnect.cpp
+CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o: CMakeFiles/mesi_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o -MF CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o.d -o CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/MesiInterconnect.cpp
 
-CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MesiInterconnect.cpp > CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.i
+CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/MesiInterconnect.cpp > CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.i
 
-CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MesiInterconnect.cpp -o CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.s
+CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/MesiInterconnect.cpp -o CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.s
+
+CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o: CMakeFiles/mesi_core.dir/flags.make
+CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o: /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/SharedMemory.cpp
+CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o: CMakeFiles/mesi_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o -MF CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o.d -o CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/SharedMemory.cpp
+
+CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/SharedMemory.cpp > CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.i
+
+CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/SharedMemory.cpp -o CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.s
 
 # Object files for target mesi_core
 mesi_core_OBJECTS = \
 "CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o" \
-"CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o"
+"CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o" \
+"CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o"
 
 # External object files for target mesi_core
 mesi_core_EXTERNAL_OBJECTS =
 
 libmesi_core.a: CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o
-libmesi_core.a: CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o
+libmesi_core.a: CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o
+libmesi_core.a: CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o
 libmesi_core.a: CMakeFiles/mesi_core.dir/build.make
 libmesi_core.a: CMakeFiles/mesi_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libmesi_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libmesi_core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/mesi_core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mesi_core.dir/link.txt --verbose=$(VERBOSE)
 

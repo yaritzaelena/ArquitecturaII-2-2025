@@ -1,6 +1,4 @@
 /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles/mesi_core.dir
 /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles/dotprod_mesi.dir
-/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles/test_mesi_basic.dir
-/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles/test_mesi_m_to_s.dir
 /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles/edit_cache.dir
 /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles/rebuild_cache.dir

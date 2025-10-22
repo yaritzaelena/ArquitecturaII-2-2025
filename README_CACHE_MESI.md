@@ -23,6 +23,10 @@ Este módulo implementa una caché por PE con coherencia **MESI**, cumpliendo la
 
 ## Compilar
 ```bash
-cmake -S . -B build
-cmake --build build -j
-./build/test_mesi_basic
+
+   mkdir -p build && cd build
+   cmake ..
+   make -j$(nproc)
+   ./dotprod_mesi
+
+

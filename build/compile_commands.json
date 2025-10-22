@@ -1,38 +1,32 @@
 [
 {
   "directory": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build",
-  "command": "/usr/bin/c++ -DTRACE_MESI=1 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -g -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MESICache.cpp",
+  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MESICache.cpp",
   "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MESICache.cpp",
   "output": "CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o"
 },
 {
   "directory": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build",
-  "command": "/usr/bin/c++ -DTRACE_MESI=1 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -g -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MesiInterconnect.cpp",
-  "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/cache/mesi/MesiInterconnect.cpp",
-  "output": "CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o"
+  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/MesiInterconnect.cpp",
+  "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/MesiInterconnect.cpp",
+  "output": "CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o"
 },
 {
   "directory": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build",
-  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -g -std=gnu++20 -o CMakeFiles/dotprod_mesi.dir/apps/dotprod_mesi_main.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/apps/dotprod_mesi_main.cpp",
+  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/SharedMemory.cpp",
+  "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src/memory/SharedMemory.cpp",
+  "output": "CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o"
+},
+{
+  "directory": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build",
+  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE -std=gnu++20 -o CMakeFiles/dotprod_mesi.dir/apps/dotprod_mesi_main.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/apps/dotprod_mesi_main.cpp",
   "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/apps/dotprod_mesi_main.cpp",
   "output": "CMakeFiles/dotprod_mesi.dir/apps/dotprod_mesi_main.cpp.o"
 },
 {
   "directory": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build",
-  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -g -std=gnu++20 -o CMakeFiles/dotprod_mesi.dir/PE/pe/pe.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE/pe/pe.cpp",
+  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE -std=gnu++20 -o CMakeFiles/dotprod_mesi.dir/PE/pe/pe.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE/pe/pe.cpp",
   "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE/pe/pe.cpp",
   "output": "CMakeFiles/dotprod_mesi.dir/PE/pe/pe.cpp.o"
-},
-{
-  "directory": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build",
-  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -g -std=gnu++20 -o CMakeFiles/test_mesi_basic.dir/tests/cache/mesi/test_mesi_basic.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/tests/cache/mesi/test_mesi_basic.cpp",
-  "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/tests/cache/mesi/test_mesi_basic.cpp",
-  "output": "CMakeFiles/test_mesi_basic.dir/tests/cache/mesi/test_mesi_basic.cpp.o"
-},
-{
-  "directory": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build",
-  "command": "/usr/bin/c++  -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -g -std=gnu++20 -o CMakeFiles/test_mesi_m_to_s.dir/tests/cache/mesi/test_mesi_m_to_s.cpp.o -c /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/tests/cache/mesi/test_mesi_m_to_s.cpp",
-  "file": "/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/tests/cache/mesi/test_mesi_m_to_s.cpp",
-  "output": "CMakeFiles/test_mesi_m_to_s.dir/tests/cache/mesi/test_mesi_m_to_s.cpp.o"
 }
 ]

@@ -1,6 +1,5 @@
 #pragma once
 #include "MesiTypes.hpp"
-#include "adapters/InterconnectAdapter.hpp"
 #include <cstdint>
 #include <optional>
 #include <ostream>

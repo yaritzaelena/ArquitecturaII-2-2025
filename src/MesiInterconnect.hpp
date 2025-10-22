@@ -6,33 +6,34 @@
 #include <cstdint>
 #include <cstring>
 #include <cassert>
-
-#include "MESICache.hpp"         // BusTransaction, BusMsg, kLineSize
+#include <functional>
+#include "../src/memory/SharedMemory.h" 
+#include "../src/memory/cache/mesi/MESICache.hpp"         // BusTransaction, BusMsg, kLineSize
 
 class MesiInterconnect {
 public:
-  explicit MesiInterconnect(size_t dram_bytes);
+  explicit MesiInterconnect(size_t /*dram_bytes*/); 
+  void set_shared_memory(SharedMemory* shm) { shm_ = shm; }
   void connect(MESICache* cache);
-  // Crea el iface para una caché con id 'id'
-  // - emit: cache -> bus
-  // - registerSnoopSink: cache -> bus (registra callback)
- // MesiBusIface makeInterface(int id);
+
   void emit(const BusTransaction& t);    
-  // acceso a DRAM simulada (inicialización de datos) --- TRABAJANDO EN INTEGRACION CON MEM
-  std::vector<uint8_t>& dram()       { return dram_; }
-  const std::vector<uint8_t>& dram() const { return dram_; }
   void attachCachePtr(int id, MESICache* c);
 
 private:
   // por-id
   std::vector<std::function<void(const BusTransaction&)>> snoop_sinks_; // callbacks de snoop
   std::vector<MESICache*> caches_;   
-  std::vector<uint8_t>    dram_;
   std::unordered_map<uint64_t, std::array<uint8_t, MESICache::kLineSize>> last_flush_;
   std::recursive_mutex mtx_; 
+
+  //dirección base de una línea de caché.
+  SharedMemory* shm_ = nullptr;
   static inline uint64_t base_(uint64_t a) {
     return a & ~((uint64_t)MESICache::kLineSize - 1);
   }
+
+  void read_line_from_mem_(uint64_t base_addr, uint8_t out[32]);
+  void write_line_to_mem_(uint64_t base_addr, const uint8_t in[32]);
 
    // implementación real
   bool any_other_has_line_(int except_id, uint64_t addr) const;

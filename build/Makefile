@@ -142,32 +142,6 @@ dotprod_mesi/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/dotprod_mesi.dir/build.make CMakeFiles/dotprod_mesi.dir/build
 .PHONY : dotprod_mesi/fast
 
-#=============================================================================
-# Target rules for targets named test_mesi_basic
-
-# Build rule for target.
-test_mesi_basic: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_mesi_basic
-.PHONY : test_mesi_basic
-
-# fast build rule for target.
-test_mesi_basic/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_basic.dir/build.make CMakeFiles/test_mesi_basic.dir/build
-.PHONY : test_mesi_basic/fast
-
-#=============================================================================
-# Target rules for targets named test_mesi_m_to_s
-
-# Build rule for target.
-test_mesi_m_to_s: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_mesi_m_to_s
-.PHONY : test_mesi_m_to_s
-
-# fast build rule for target.
-test_mesi_m_to_s/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_m_to_s.dir/build.make CMakeFiles/test_mesi_m_to_s.dir/build
-.PHONY : test_mesi_m_to_s/fast
-
 PE/pe/pe.o: PE/pe/pe.cpp.o
 .PHONY : PE/pe/pe.o
 
@@ -216,6 +190,54 @@ apps/dotprod_mesi_main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/dotprod_mesi.dir/build.make CMakeFiles/dotprod_mesi.dir/apps/dotprod_mesi_main.cpp.s
 .PHONY : apps/dotprod_mesi_main.cpp.s
 
+src/MesiInterconnect.o: src/MesiInterconnect.cpp.o
+.PHONY : src/MesiInterconnect.o
+
+# target to build an object file
+src/MesiInterconnect.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o
+.PHONY : src/MesiInterconnect.cpp.o
+
+src/MesiInterconnect.i: src/MesiInterconnect.cpp.i
+.PHONY : src/MesiInterconnect.i
+
+# target to preprocess a source file
+src/MesiInterconnect.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.i
+.PHONY : src/MesiInterconnect.cpp.i
+
+src/MesiInterconnect.s: src/MesiInterconnect.cpp.s
+.PHONY : src/MesiInterconnect.s
+
+# target to generate assembly for a file
+src/MesiInterconnect.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.s
+.PHONY : src/MesiInterconnect.cpp.s
+
+src/memory/SharedMemory.o: src/memory/SharedMemory.cpp.o
+.PHONY : src/memory/SharedMemory.o
+
+# target to build an object file
+src/memory/SharedMemory.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o
+.PHONY : src/memory/SharedMemory.cpp.o
+
+src/memory/SharedMemory.i: src/memory/SharedMemory.cpp.i
+.PHONY : src/memory/SharedMemory.i
+
+# target to preprocess a source file
+src/memory/SharedMemory.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.i
+.PHONY : src/memory/SharedMemory.cpp.i
+
+src/memory/SharedMemory.s: src/memory/SharedMemory.cpp.s
+.PHONY : src/memory/SharedMemory.s
+
+# target to generate assembly for a file
+src/memory/SharedMemory.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.s
+.PHONY : src/memory/SharedMemory.cpp.s
+
 src/memory/cache/mesi/MESICache.o: src/memory/cache/mesi/MESICache.cpp.o
 .PHONY : src/memory/cache/mesi/MESICache.o
 
@@ -240,78 +262,6 @@ src/memory/cache/mesi/MESICache.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.s
 .PHONY : src/memory/cache/mesi/MESICache.cpp.s
 
-src/memory/cache/mesi/MesiInterconnect.o: src/memory/cache/mesi/MesiInterconnect.cpp.o
-.PHONY : src/memory/cache/mesi/MesiInterconnect.o
-
-# target to build an object file
-src/memory/cache/mesi/MesiInterconnect.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o
-.PHONY : src/memory/cache/mesi/MesiInterconnect.cpp.o
-
-src/memory/cache/mesi/MesiInterconnect.i: src/memory/cache/mesi/MesiInterconnect.cpp.i
-.PHONY : src/memory/cache/mesi/MesiInterconnect.i
-
-# target to preprocess a source file
-src/memory/cache/mesi/MesiInterconnect.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.i
-.PHONY : src/memory/cache/mesi/MesiInterconnect.cpp.i
-
-src/memory/cache/mesi/MesiInterconnect.s: src/memory/cache/mesi/MesiInterconnect.cpp.s
-.PHONY : src/memory/cache/mesi/MesiInterconnect.s
-
-# target to generate assembly for a file
-src/memory/cache/mesi/MesiInterconnect.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.s
-.PHONY : src/memory/cache/mesi/MesiInterconnect.cpp.s
-
-tests/cache/mesi/test_mesi_basic.o: tests/cache/mesi/test_mesi_basic.cpp.o
-.PHONY : tests/cache/mesi/test_mesi_basic.o
-
-# target to build an object file
-tests/cache/mesi/test_mesi_basic.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_basic.dir/build.make CMakeFiles/test_mesi_basic.dir/tests/cache/mesi/test_mesi_basic.cpp.o
-.PHONY : tests/cache/mesi/test_mesi_basic.cpp.o
-
-tests/cache/mesi/test_mesi_basic.i: tests/cache/mesi/test_mesi_basic.cpp.i
-.PHONY : tests/cache/mesi/test_mesi_basic.i
-
-# target to preprocess a source file
-tests/cache/mesi/test_mesi_basic.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_basic.dir/build.make CMakeFiles/test_mesi_basic.dir/tests/cache/mesi/test_mesi_basic.cpp.i
-.PHONY : tests/cache/mesi/test_mesi_basic.cpp.i
-
-tests/cache/mesi/test_mesi_basic.s: tests/cache/mesi/test_mesi_basic.cpp.s
-.PHONY : tests/cache/mesi/test_mesi_basic.s
-
-# target to generate assembly for a file
-tests/cache/mesi/test_mesi_basic.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_basic.dir/build.make CMakeFiles/test_mesi_basic.dir/tests/cache/mesi/test_mesi_basic.cpp.s
-.PHONY : tests/cache/mesi/test_mesi_basic.cpp.s
-
-tests/cache/mesi/test_mesi_m_to_s.o: tests/cache/mesi/test_mesi_m_to_s.cpp.o
-.PHONY : tests/cache/mesi/test_mesi_m_to_s.o
-
-# target to build an object file
-tests/cache/mesi/test_mesi_m_to_s.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_m_to_s.dir/build.make CMakeFiles/test_mesi_m_to_s.dir/tests/cache/mesi/test_mesi_m_to_s.cpp.o
-.PHONY : tests/cache/mesi/test_mesi_m_to_s.cpp.o
-
-tests/cache/mesi/test_mesi_m_to_s.i: tests/cache/mesi/test_mesi_m_to_s.cpp.i
-.PHONY : tests/cache/mesi/test_mesi_m_to_s.i
-
-# target to preprocess a source file
-tests/cache/mesi/test_mesi_m_to_s.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_m_to_s.dir/build.make CMakeFiles/test_mesi_m_to_s.dir/tests/cache/mesi/test_mesi_m_to_s.cpp.i
-.PHONY : tests/cache/mesi/test_mesi_m_to_s.cpp.i
-
-tests/cache/mesi/test_mesi_m_to_s.s: tests/cache/mesi/test_mesi_m_to_s.cpp.s
-.PHONY : tests/cache/mesi/test_mesi_m_to_s.s
-
-# target to generate assembly for a file
-tests/cache/mesi/test_mesi_m_to_s.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_m_to_s.dir/build.make CMakeFiles/test_mesi_m_to_s.dir/tests/cache/mesi/test_mesi_m_to_s.cpp.s
-.PHONY : tests/cache/mesi/test_mesi_m_to_s.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -322,26 +272,21 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... dotprod_mesi"
 	@echo "... mesi_core"
-	@echo "... test_mesi_basic"
-	@echo "... test_mesi_m_to_s"
 	@echo "... PE/pe/pe.o"
 	@echo "... PE/pe/pe.i"
 	@echo "... PE/pe/pe.s"
 	@echo "... apps/dotprod_mesi_main.o"
 	@echo "... apps/dotprod_mesi_main.i"
 	@echo "... apps/dotprod_mesi_main.s"
+	@echo "... src/MesiInterconnect.o"
+	@echo "... src/MesiInterconnect.i"
+	@echo "... src/MesiInterconnect.s"
+	@echo "... src/memory/SharedMemory.o"
+	@echo "... src/memory/SharedMemory.i"
+	@echo "... src/memory/SharedMemory.s"
 	@echo "... src/memory/cache/mesi/MESICache.o"
 	@echo "... src/memory/cache/mesi/MESICache.i"
 	@echo "... src/memory/cache/mesi/MESICache.s"
-	@echo "... src/memory/cache/mesi/MesiInterconnect.o"
-	@echo "... src/memory/cache/mesi/MesiInterconnect.i"
-	@echo "... src/memory/cache/mesi/MesiInterconnect.s"
-	@echo "... tests/cache/mesi/test_mesi_basic.o"
-	@echo "... tests/cache/mesi/test_mesi_basic.i"
-	@echo "... tests/cache/mesi/test_mesi_basic.s"
-	@echo "... tests/cache/mesi/test_mesi_m_to_s.o"
-	@echo "... tests/cache/mesi/test_mesi_m_to_s.i"
-	@echo "... tests/cache/mesi/test_mesi_m_to_s.s"
 .PHONY : help
 
 

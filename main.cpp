@@ -1,5 +1,5 @@
-#include "SharedMemory.h"
-#include "src/memory/cache/mesi/MESICache.hpp"
+#include "../src/memory/SharedMemory.h"
+#include "../src/memory/cache/mesi/MESICache.hpp"
 #include "PE/pe/pe.hpp"
 #include <iostream>
 #include <vector>

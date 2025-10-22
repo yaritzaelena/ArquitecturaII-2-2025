@@ -65,8 +65,6 @@ CMAKE_BINARY_DIR = /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build
 # The main recursive "all" target.
 all: CMakeFiles/mesi_core.dir/all
 all: CMakeFiles/dotprod_mesi.dir/all
-all: CMakeFiles/test_mesi_basic.dir/all
-all: CMakeFiles/test_mesi_m_to_s.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -76,8 +74,6 @@ preinstall:
 # The main recursive "clean" target.
 clean: CMakeFiles/mesi_core.dir/clean
 clean: CMakeFiles/dotprod_mesi.dir/clean
-clean: CMakeFiles/test_mesi_basic.dir/clean
-clean: CMakeFiles/test_mesi_m_to_s.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -87,12 +83,12 @@ clean: CMakeFiles/test_mesi_m_to_s.dir/clean
 CMakeFiles/mesi_core.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mesi_core.dir/build.make CMakeFiles/mesi_core.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=4,5,6 "Built target mesi_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=4,5,6,7 "Built target mesi_core"
 .PHONY : CMakeFiles/mesi_core.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/mesi_core.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/mesi_core.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 0
 .PHONY : CMakeFiles/mesi_core.dir/rule
@@ -118,7 +114,7 @@ CMakeFiles/dotprod_mesi.dir/all: CMakeFiles/mesi_core.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/dotprod_mesi.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 7
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/dotprod_mesi.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 0
 .PHONY : CMakeFiles/dotprod_mesi.dir/rule
@@ -131,58 +127,6 @@ dotprod_mesi: CMakeFiles/dotprod_mesi.dir/rule
 CMakeFiles/dotprod_mesi.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/dotprod_mesi.dir/build.make CMakeFiles/dotprod_mesi.dir/clean
 .PHONY : CMakeFiles/dotprod_mesi.dir/clean
-
-#=============================================================================
-# Target rules for target CMakeFiles/test_mesi_basic.dir
-
-# All Build rule for target.
-CMakeFiles/test_mesi_basic.dir/all: CMakeFiles/mesi_core.dir/all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_basic.dir/build.make CMakeFiles/test_mesi_basic.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_basic.dir/build.make CMakeFiles/test_mesi_basic.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=7,8 "Built target test_mesi_basic"
-.PHONY : CMakeFiles/test_mesi_basic.dir/all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/test_mesi_basic.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 5
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_mesi_basic.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 0
-.PHONY : CMakeFiles/test_mesi_basic.dir/rule
-
-# Convenience name for target.
-test_mesi_basic: CMakeFiles/test_mesi_basic.dir/rule
-.PHONY : test_mesi_basic
-
-# clean rule for target.
-CMakeFiles/test_mesi_basic.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_basic.dir/build.make CMakeFiles/test_mesi_basic.dir/clean
-.PHONY : CMakeFiles/test_mesi_basic.dir/clean
-
-#=============================================================================
-# Target rules for target CMakeFiles/test_mesi_m_to_s.dir
-
-# All Build rule for target.
-CMakeFiles/test_mesi_m_to_s.dir/all: CMakeFiles/mesi_core.dir/all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_m_to_s.dir/build.make CMakeFiles/test_mesi_m_to_s.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_m_to_s.dir/build.make CMakeFiles/test_mesi_m_to_s.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles --progress-num=9,10 "Built target test_mesi_m_to_s"
-.PHONY : CMakeFiles/test_mesi_m_to_s.dir/all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/test_mesi_m_to_s.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 5
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_mesi_m_to_s.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/build/CMakeFiles 0
-.PHONY : CMakeFiles/test_mesi_m_to_s.dir/rule
-
-# Convenience name for target.
-test_mesi_m_to_s: CMakeFiles/test_mesi_m_to_s.dir/rule
-.PHONY : test_mesi_m_to_s
-
-# clean rule for target.
-CMakeFiles/test_mesi_m_to_s.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_mesi_m_to_s.dir/build.make CMakeFiles/test_mesi_m_to_s.dir/clean
-.PHONY : CMakeFiles/test_mesi_m_to_s.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

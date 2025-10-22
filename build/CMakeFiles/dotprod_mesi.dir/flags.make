@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src
+CXX_INCLUDES = -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025 -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/src -I/home/yaritza/Desktop/Arqui22025/ArquitecturaII-2-2025/PE
 
-CXX_FLAGS = -g -std=gnu++20
+CXX_FLAGS = -std=gnu++20
 

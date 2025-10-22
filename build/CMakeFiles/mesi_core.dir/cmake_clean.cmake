@@ -1,8 +1,10 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o"
+  "CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o.d"
+  "CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o"
+  "CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o.d"
   "CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o"
   "CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o.d"
-  "CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o"
-  "CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MesiInterconnect.cpp.o.d"
   "libmesi_core.a"
   "libmesi_core.pdb"
 )
