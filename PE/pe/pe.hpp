@@ -39,6 +39,11 @@ public:
 
     const std::array<uint64_t,8>& regs() const { return R_; }
 
+    void step(bool& halted);
+    static inline double u64_as_double(uint64_t u) {
+        double d; std::memcpy(&d, &u, 8); return d;
+    }
+
 private:
     int id_ = 0;
     IMemoryPort* mem_ = nullptr;
@@ -46,11 +51,6 @@ private:
     uint64_t pc_ = 0;
     std::array<uint64_t,8> R_{}; // 8 x 64-bit
 
-
-    void step(bool& halted);
-    static inline double u64_as_double(uint64_t u) {
-        double d; std::memcpy(&d, &u, 8); return d;
-    }
     static inline uint64_t double_as_u64(double d) {
         uint64_t u; std::memcpy(&u, &d, 8); return u;
     }

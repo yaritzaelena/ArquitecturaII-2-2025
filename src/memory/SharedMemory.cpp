@@ -86,7 +86,7 @@ void SharedMemory::handle_write(MessageP msg, std::function<void(MessageP)> send
 
 void SharedMemory::dump_stats(std::ostream &os) {
     std::lock_guard<std::mutex> lock(memory_mutex);
-    os << "\n=== Estadísticas de SharedMemory ===\n";
+    os << "\n=== Estadisticas de SharedMemory ===\n";
     os << "Total de lecturas: " << total_reads << "\n";
     os << "Total de escrituras: " << total_writes << "\n";
 }

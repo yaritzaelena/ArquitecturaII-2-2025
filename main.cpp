@@ -14,6 +14,7 @@
 #include "../src/MesiInterconnect.hpp"
 #include "../src/memory/SharedMemory.h"
 #include "../src/memory/cache/mesi/MESICache.hpp"
+#include "../src/utils/Stepper.hpp"   // ✅ Nuevo include
 #include "../PE/pe/pe.hpp"
 
 // ---------------- Métricas simples por puerto ----------------
@@ -53,6 +54,7 @@ static inline void shm_write_double(SharedMemory& shm, uint64_t addr, double v) 
   for (int i=0;i<8;++i) req->data_write[i] = static_cast<uint8_t>((u >> (i*8)) & 0xFF);
   shm.handle_message(req, [&](MessageP){});
 }
+
 static inline double shm_read_double(SharedMemory& shm, uint64_t addr) {
   auto req = std::make_shared<Message>(MessageType::READ_MEM, -1, -1);
   req->payload.read_mem.address = static_cast<uint32_t>(addr);
@@ -86,11 +88,11 @@ static Program make_dot_program() {
 }
 
 // ============================= MODO DOT =============================
-int run_dot_mode(size_t N) { // basado en tu dotprod_mesi_main.cpp  :contentReference[oaicite:2]{index=2}
+// ============================= MODO DOT =============================
+int run_dot_mode(size_t N) {
   static constexpr uint64_t MEM_BYTES = 4096;
   static constexpr uint64_t LINE      = 32;
 
-  // Layout: A[0..N-1], B[0..N-1], parciales en 4 líneas finales
   const uint64_t baseA = 0;
   const uint64_t baseB = baseA + N*8;
   const uint64_t baseP = MEM_BYTES - 4*LINE;
@@ -108,7 +110,6 @@ int run_dot_mode(size_t N) { // basado en tu dotprod_mesi_main.cpp  :contentRefe
   MesiInterconnect bus(0);
   bus.set_shared_memory(&shm);
 
-  // Inicializa datos
   for (size_t i=0; i<N; ++i) {
     shm_write_double(shm, baseA + i*8, double(i+1));
     shm_write_double(shm, baseB + i*8, 0.5*double(i+1));
@@ -118,20 +119,16 @@ int run_dot_mode(size_t N) { // basado en tu dotprod_mesi_main.cpp  :contentRefe
   shm_write_double(shm, o2, 0.0);
   shm_write_double(shm, o3, 0.0);
 
-  // Caches + bus
-  MESICache c0(0, bus), c1(1, bus), c2(2, bus), c3(3, bus);
+  MESICache c0(0,bus), c1(1,bus), c2(2,bus), c3(3,bus);
   bus.connect(&c0); bus.connect(&c1); bus.connect(&c2); bus.connect(&c3);
 
-  // Puertos
   PortMetrics pm0, pm1, pm2, pm3;
   MesiMemoryPort mp0(c0,bus,&pm0), mp1(c1,bus,&pm1), mp2(c2,bus,&pm2), mp3(c3,bus,&pm3);
 
-  // PEs + programa
   Program prog = make_dot_program();
   PE pe0(0,&mp0), pe1(1,&mp1), pe2(2,&mp2), pe3(3,&mp3);
   pe0.load_program(prog); pe1.load_program(prog); pe2.load_program(prog); pe3.load_program(prog);
 
-  // Segmentación (con residuos por si N%4 != 0)
   const size_t base_chunk = N/4, rem = N%4;
   auto len_k = [&](int k){ return base_chunk + (k<rem ? 1 : 0); };
   uint64_t aK[4], bK[4], oK[4] = {o0,o1,o2,o3}; size_t off=0;
@@ -149,14 +146,12 @@ int run_dot_mode(size_t N) { // basado en tu dotprod_mesi_main.cpp  :contentRefe
   pe2.set_segment(aK[2], bK[2], oK[2], len_k(2));
   pe3.set_segment(aK[3], bK[3], oK[3], len_k(3));
 
-  // Ejecutar
   std::thread t0([&]{ pe0.run(0); });
   std::thread t1([&]{ pe1.run(0); });
   std::thread t2([&]{ pe2.run(0); });
   std::thread t3([&]{ pe3.run(0); });
   t0.join(); t1.join(); t2.join(); t3.join();
 
-  // Lectura coherente de parciales (usar el puerto!)
   auto load_double_coherent = [&](uint64_t addr)->double {
     uint64_t u = mp0.load64(addr);
     double d; std::memcpy(&d, &u, 8);
@@ -173,17 +168,32 @@ int run_dot_mode(size_t N) { // basado en tu dotprod_mesi_main.cpp  :contentRefe
   std::cout << "result   = " << result   << "\n";
   std::cout << "expected = " << expected << "\n";
 
-  const auto& s0 = c0.stats();
-  std::printf("PE0 stats: loads=%llu stores=%llu misses=%llu inv=%llu rd=%llu rdx=%llu upg=%llu flush=%llu\n",
-    (unsigned long long)s0.loads, (unsigned long long)s0.stores, (unsigned long long)s0.cache_misses,
-    (unsigned long long)s0.invalidations, (unsigned long long)s0.busRd, (unsigned long long)s0.busRdX,
-    (unsigned long long)s0.busUpgr, (unsigned long long)s0.flush);
+  // ---------- Exportar métricas a CSV ----------
+  std::ofstream csv("cache_stats.csv");
+  csv << "PE,Loads,Stores,RW_Accesses,Cache_Misses,Invalidations,"
+         "BusRd,BusRdX,BusUpgr,Flush,Transitions\n";
 
-  std::printf("Port ops  : PE0(l=%llu,s=%llu) PE1(l=%llu,s=%llu) PE2(l=%llu,s=%llu) PE3(l=%llu,s=%llu)\n",
-    (unsigned long long)pm0.loads,(unsigned long long)pm0.stores,
-    (unsigned long long)pm1.loads,(unsigned long long)pm1.stores,
-    (unsigned long long)pm2.loads,(unsigned long long)pm2.stores,
-    (unsigned long long)pm3.loads,(unsigned long long)pm3.stores);
+  auto write_cache = [&](int pe, const MESICache& cache) {
+      const auto& s = cache.stats();
+      csv << pe << ","
+          << s.loads << ","
+          << s.stores << ","
+          << (s.loads + s.stores) << ","
+          << s.cache_misses << ","
+          << s.invalidations << ","
+          << s.busRd << ","
+          << s.busRdX << ","
+          << s.busUpgr << ","
+          << s.flush << ",\""
+          << cache.transition_log() << "\"\n";
+  };
+
+  write_cache(0, c0);
+  write_cache(1, c1);
+  write_cache(2, c2);
+  write_cache(3, c3);
+  csv.close();
+  std::cout << "✅ Métricas exportadas a cache_stats.csv\n";
 
   if (std::abs(result-expected) < 1e-9*std::max(1.0, std::abs(expected))) {
     std::puts("PASS dotprod with MESI");
@@ -194,75 +204,112 @@ int run_dot_mode(size_t N) { // basado en tu dotprod_mesi_main.cpp  :contentRefe
   }
 }
 
-// ============================= MODO DEMO/STEPPING =============================
-int run_demo_mode(bool stepping) { // inspirado en tu main.cpp  :contentReference[oaicite:3]{index=3}
+
+// ============================= MODO DEMO (BUS STEPPING) =============================
+int run_demo_mode(size_t N, bool stepping) {
+  std::cout << "\n===== DEMO: Visualizacion de coherencia MESI =====\n";
+  std::cout << "Vector size N = " << N << "\n";
+  if (stepping) std::cout << "Presione Siguiente evento para avanzar entre eventos del BUS...\n\n";
+
+  static constexpr uint64_t MEM_BYTES = 4096;
+  static constexpr uint64_t LINE      = 32;
+
+  const uint64_t baseA = 0;
+  const uint64_t baseB = baseA + N*8;
+  const uint64_t baseP = MEM_BYTES - 4*LINE;
+  const uint64_t o0 = baseP + 0*LINE;
+  const uint64_t o1 = baseP + 1*LINE;
+  const uint64_t o2 = baseP + 2*LINE;
+  const uint64_t o3 = baseP + 3*LINE;
+
   SharedMemory shm;
   MesiInterconnect bus(0);
   bus.set_shared_memory(&shm);
 
-  MESICache c0(0,bus), c1(1,bus);
-  bus.connect(&c0); bus.connect(&c1);
+  // Stepper para visualización del BUS
+  Stepper step;
+  step.enabled = stepping;
+  bus.set_stepper(&step);
 
-  auto pause = [&](const char* msg){
-    if (!stepping) return;
-    std::cout << "\n========== " << msg << " ==========\nPresione ENTER...\n";
-    std::cin.get();
-  };
-
-  // Ciclo 1: PE0 escribe 42 @0x00
-  std::cout << "\n[CICLO 1] PE0 escribe 42 @0x00\n";
-  {
-    uint64_t v = 42;
-    while (!c0.store(0x00, &v)) {}
-    pause("Fin de ciclo 1");
+  for (size_t i=0; i<N; ++i) {
+    shm_write_double(shm, baseA + i*8, double(i+1));
+    shm_write_double(shm, baseB + i*8, 0.5*double(i+1));
   }
 
-  // Ciclo 2: PE1 lee @0x00
-  std::cout << "\n[CICLO 2] PE1 lee @0x00\n";
-  {
-    uint64_t r=0;
-    while (!c1.load(0x00, &r)) {}
-    std::cout << "Leido por PE1 = " << r << "\n";
-    pause("Fin de ciclo 2");
+  MESICache c0(0,bus), c1(1,bus), c2(2,bus), c3(3,bus);
+  bus.connect(&c0); bus.connect(&c1); bus.connect(&c2); bus.connect(&c3);
+
+  PortMetrics pm0, pm1, pm2, pm3;
+  MesiMemoryPort mp0(c0,bus,&pm0), mp1(c1,bus,&pm1), mp2(c2,bus,&pm2), mp3(c3,bus,&pm3);
+
+  Program prog = make_dot_program();
+  PE pe0(0,&mp0), pe1(1,&mp1), pe2(2,&mp2), pe3(3,&mp3);
+  pe0.load_program(prog); pe1.load_program(prog); pe2.load_program(prog); pe3.load_program(prog);
+
+  const size_t base_chunk = N/4, rem = N%4;
+  auto len_k = [&](int k){ return base_chunk + (k<rem ? 1 : 0); };
+  uint64_t aK[4], bK[4], oK[4] = {o0,o1,o2,o3}; size_t off=0;
+  for (int k=0;k<4;++k) {
+    size_t len = len_k(k);
+    aK[k] = baseA + off*8;
+    bK[k] = baseB + off*8;
+    off += len;
+    std::printf("seg%d: A=%llu B=%llu out=%llu len=%zu\n",
+      k, (unsigned long long)aK[k], (unsigned long long)bK[k],
+      (unsigned long long)oK[k], len);
   }
+  pe0.set_segment(aK[0], bK[0], oK[0], len_k(0));
+  pe1.set_segment(aK[1], bK[1], oK[1], len_k(1));
+  pe2.set_segment(aK[2], bK[2], oK[2], len_k(2));
+  pe3.set_segment(aK[3], bK[3], oK[3], len_k(3));
 
-  // Ciclo 3: PE0 sobrescribe 99 @0x00
-  std::cout << "\n[CICLO 3] PE0 sobrescribe 99 @0x00\n";
-  {
-    uint64_t v = 99;
-    while (!c0.store(0x00, &v)) {}
-    pause("Fin de ciclo 3");
-  }
+  std::thread t0([&]{ pe0.run(0); });
+  std::thread t1([&]{ pe1.run(0); });
+  std::thread t2([&]{ pe2.run(0); });
+  std::thread t3([&]{ pe3.run(0); });
+  t0.join(); t1.join(); t2.join(); t3.join();
 
-  // Ciclo 4: PE1 vuelve a leer
-  std::cout << "\n[CICLO 4] PE1 vuelve a leer @0x00\n";
-  {
-    uint64_t r=0;
-    while (!c1.load(0x00, &r)) {}
-    std::cout << "Leido por PE1 = " << r << "\n";
-    pause("Fin de ciclo 4");
-  }
+  double p0 = shm_read_double(shm, o0);
+  double p1 = shm_read_double(shm, o1);
+  double p2 = shm_read_double(shm, o2);
+  double p3 = shm_read_double(shm, o3);
+  double result = p0 + p1 + p2 + p3;
+  double expected = 0.5 * (double(N)*(N+1)*(2.0*N+1)/6.0);
 
-  // CSV con estadísticas
-  std::ofstream csv("cache_stats.csv");
-  csv << "PE,Loads,Stores,RW_Accesses,Cache_Misses,Invalidations,BusRd,BusRdX,BusUpgr,Flush\n";
-  const auto& sA = c0.stats();
-  const auto& sB = c1.stats();
-  csv << 0 << ","<< sA.loads << ","<< sA.stores << ","<< sA.rw_accesses << ","
-      << sA.cache_misses << ","<< sA.invalidations << ","
-      << sA.busRd << ","<< sA.busRdX << ","<< sA.busUpgr << ","<< sA.flush << "\n";
-  csv << 1 << ","<< sB.loads << ","<< sB.stores << ","<< sB.rw_accesses << ","
-      << sB.cache_misses << ","<< sB.invalidations << ","
-      << sB.busRd << ","<< sB.busRdX << ","<< sB.busUpgr << ","<< sB.flush << "\n";
-  csv.close();
+  // ---------- Exportar métricas a CSV ----------
+std::ofstream csv("cache_stats.csv");
+csv << "PE,Loads,Stores,RW_Accesses,Cache_Misses,Invalidations,"
+       "BusRd,BusRdX,BusUpgr,Flush,Transitions\n";
 
-  std::cout << "CSV guardado: cache_stats.csv\n";
+auto write_cache = [&](int pe, const MESICache& cache) {
+    const auto& s = cache.stats();
+    csv << pe << ","
+        << s.loads << ","
+        << s.stores << ","
+        << (s.loads + s.stores) << ","
+        << s.cache_misses << ","
+        << s.invalidations << ","
+        << s.busRd << ","
+        << s.busRdX << ","
+        << s.busUpgr << ","
+        << s.flush << ",\""
+        << cache.transition_log() << "\"\n";
+};
+
+write_cache(0, c0);
+write_cache(1, c1);
+write_cache(2, c2);
+write_cache(3, c3);
+csv.close();
+
+std::cout << "✅ Métricas exportadas";
+
+
   return 0;
 }
 
 // ============================= MAIN =============================
 int main(int argc, char** argv) {
-  // CLI: --mode=dot|demo  --N=248  --nostep
   std::string mode = "dot";
   size_t N = 248;
   bool stepping = true;
@@ -274,10 +321,9 @@ int main(int argc, char** argv) {
     else if (a=="--nostep")           stepping = false;
   }
 
-  if (mode=="dot")   return run_dot_mode(N);
-  if (mode=="demo")  return run_demo_mode(stepping);
+  if (mode == "dot")  return run_dot_mode(N);
+  if (mode == "demo") return run_demo_mode(N, stepping);
 
   std::fprintf(stderr,"Uso: %s [--mode=dot|demo] [--N=248] [--nostep]\n", argv[0]);
   return 1;
 }
-

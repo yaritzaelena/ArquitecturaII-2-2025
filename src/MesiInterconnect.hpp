@@ -9,6 +9,8 @@
 #include <functional>
 #include "../src/memory/SharedMemory.h" 
 #include "../src/memory/cache/mesi/MESICache.hpp"         // BusTransaction, BusMsg, kLineSize
+#include "../src/utils/Stepper.hpp"
+
 
 class MesiInterconnect {
 public:
@@ -18,6 +20,7 @@ public:
 
   void emit(const BusTransaction& t);    
   void attachCachePtr(int id, MESICache* c);
+  void set_stepper(Stepper* s) { stepper_ = s; }
 
 private:
   // por-id
@@ -25,6 +28,7 @@ private:
   std::vector<MESICache*> caches_;   
   std::unordered_map<uint64_t, std::array<uint8_t, MESICache::kLineSize>> last_flush_;
   std::recursive_mutex mtx_; 
+  Stepper* stepper_ = nullptr;
 
   //dirección base de una línea de caché.
   SharedMemory* shm_ = nullptr;

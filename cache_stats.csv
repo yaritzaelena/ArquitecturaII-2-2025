@@ -1,3 +1,5 @@
 PE,Loads,Stores,RW_Accesses,Cache_Misses,Invalidations,BusRd,BusRdX,BusUpgr,Flush,Transitions
-0,0,2,2,1,1,0,1,1,1,"MESI: 2->1; MESI: 1->0; MESI: 1->3; MESI: 3->1"
-1,2,0,2,2,1,2,0,0,0,"MESI: 2->0"
+0,14,2,16,5,0,4,1,0,0,"MESI: 0->2; MESI: 0->2; MESI: 0->1; MESI: 0->1; MESI: 0->2; MESI: 2->3"
+1,14,2,16,5,0,4,1,0,0,"MESI: 0->2; MESI: 0->2; MESI: 0->2; MESI: 0->2; MESI: 0->2; MESI: 2->3; MESI: 2->1; MESI: 2->1; MESI: 2->1; MESI: 2->1"
+2,14,2,16,5,0,4,1,0,0,"MESI: 0->1; MESI: 0->1; MESI: 0->2; MESI: 0->2; MESI: 0->2; MESI: 2->3; MESI: 2->1; MESI: 2->1"
+3,14,2,16,5,0,4,1,0,0,"MESI: 0->1; MESI: 0->1; MESI: 0->2; MESI: 0->2; MESI: 0->2; MESI: 2->3"

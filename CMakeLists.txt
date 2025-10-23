@@ -65,7 +65,7 @@ target_link_libraries(mesi_core PUBLIC Threads::Threads)
 # Ejecutable dot product (apps/dotprod_mesi_main.cpp)
 # -------------------------------
 add_executable(dotprod_mesi
-        apps/dotprod_mesi_main.cpp
+        main.cpp
         PE/pe/pe.cpp
 )
 target_link_libraries(dotprod_mesi PRIVATE mesi_core)

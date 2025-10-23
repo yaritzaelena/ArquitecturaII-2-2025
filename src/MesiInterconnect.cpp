@@ -1,6 +1,7 @@
 #include "MesiInterconnect.hpp"
 #include "../src/memory/SharedMemory.h" 
 #include "../src/memory/cache/mesi/MESICache.hpp"  
+#include "../src/utils/Stepper.hpp"     // ✅ Nuevo include
 
 #include <memory>
 #include <cstring>
@@ -68,7 +69,7 @@ void MesiInterconnect::write_line_to_mem_(uint64_t b, const uint8_t* in) {
   req->data_write.assign(in, in + MESICache::kLineSize);
 
   // Tu SharedMemory es síncrona; la respuesta no es necesaria
-  shm_->handle_message(req, [&](MessageP /*resp*/){});
+  shm_->handle_message(req, [&](MessageP /*resp*/) {});
 }
 
 // --- Camino principal del bus ---
@@ -78,17 +79,25 @@ void MesiInterconnect::emit(const BusTransaction& t) {
 
   // A) Intervención/Flush: cache en M escribe la línea de vuelta
   if (t.type == BusMsg::Flush && t.payload && t.size == MESICache::kLineSize) {
-    // Guarda la última línea flusheada (útil si el solicitante la pide inmediatamente)
     auto& slot = last_flush_[b];
     std::memcpy(slot.data(), t.payload, MESICache::kLineSize);
 
     // Persistir al backing store real (SharedMemory)
     write_line_to_mem_(b, slot.data());
+
+    // ✅ Stepping opcional
+    if (stepper_) stepper_->pause("Flush", caches_, shm_);
     return;
   }
 
   // B) Snoop a las demás cachés (invalidaciones/observaciones)
   snoop_others_(t);
+
+  // ✅ Pausa si hay invalidaciones o actualizaciones
+  if (t.type == BusMsg::Inv || t.type == BusMsg::BusUpgr) {
+    if (stepper_) stepper_->pause(
+      (t.type == BusMsg::Inv) ? "Inv" : "BusUpgr", caches_, shm_);
+  }
 
   // C) Lecturas
   if (t.type == BusMsg::BusRd || t.type == BusMsg::BusRdX) {
@@ -108,6 +117,10 @@ void MesiInterconnect::emit(const BusTransaction& t) {
       read_line_from_mem_(b, line.data());
     }
 
+    // ✅ Stepping opcional en eventos BusRd o BusRdX
+    if (stepper_) stepper_->pause(
+      (t.type == BusMsg::BusRd) ? "BusRd" : "BusRdX", caches_, shm_);
+
     // D) Responder al solicitante
     auto* src = (t.src_pe >= 0 && t.src_pe < (int)caches_.size()) ? caches_[t.src_pe] : nullptr;
     if (src) {
@@ -116,6 +129,4 @@ void MesiInterconnect::emit(const BusTransaction& t) {
     }
     return;
   }
-
-
 }
