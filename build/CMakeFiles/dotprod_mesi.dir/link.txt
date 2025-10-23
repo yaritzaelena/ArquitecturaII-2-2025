@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/dotprod_mesi.dir/apps/dotprod_mesi_main.cpp.o CMakeFiles/dotprod_mesi.dir/PE/pe/pe.cpp.o -o dotprod_mesi  libmesi_core.a 
