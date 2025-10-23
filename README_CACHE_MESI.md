@@ -1,32 +1,59 @@
-# Caché + Protocolo MESI (tu módulo)
+# Caché + Protocolo MESI
 
 Este módulo implementa una caché por PE con coherencia **MESI**, cumpliendo la especificación:
 - **2-way set associative**, **16 líneas** totales (8 sets × 2 vías).
-- **Línea de 32 bytes** (offset=5).
-- Políticas **write-allocate** y **write-back**. :contentReference[oaicite:3]{index=3}
-- **Métricas por PE**: misses, invalidations, conteos de R/W y tráfico de bus, y matriz de transiciones MESI. :contentReference[oaicite:4]{index=4} :contentReference[oaicite:5]{index=5}
+- **Línea de 32 bytes** (offset = 5).
+- Políticas **write-allocate** y **write-back**.
+- **Métricas por PE**: loads, stores, RW_Accesses, cache_misses, invalidations, tráfico de bus (BusRd/BusRdX/BusUpgr/Flush) y transiciones MESI agregadas.
 
 ## Archivos clave
-- `MesiTypes.hpp`: enums, estructuras de línea, set y métricas.
-- `MESICache.[hpp|cpp]`: lógica del controlador MESI (lookup, LRU, install, evict con Flush, load/store, snoop).
-- `adapters/InterconnectAdapter.hpp`: interfaz para conectar con el Interconnect real del proyecto.
+- `src/memory/cache/mesi/MESICache.[hpp|cpp]`: controlador L1$ (lookup, LRU, install, evict con Flush, load/store, snoop).
+- `src/memory/cache/mesi/MesiTypes.hpp`: enums/structs (línea, set, métricas).
+- `src/memory/cache/mesi/MesiDebug.hpp`: macros de traza (`TRACE_MESI` en Debug).
+- `src/MesInterconnect.[hpp|cpp]`: interconect que difunde snoops y entrega datos al emisor.
+- `src/memory/SharedMemory.[h|cpp]`: memoria compartida (si se usa en la integración).
+- `PE/pe/pe.[hpp|cpp]`: mini-ISA del PE (LOAD/STORE/FMUL/FADD/INC/DEC/JNZ/LEA).
+- `main.cpp`: ejecutable unificado (modos **demo** y **dot product**).
+- `apps/dotprod_mesi_main.cpp` (opcional): ejecutable “solo dot product”.
+- `metrics.py` / `metrics_no_pandas.py`: generación de gráficas desde `cache_stats.csv`.
 
 ## Integración rápida
-1. **Registrar el caché** de cada PE en el interconnect (o bus) para que:
-   - Al emitir `BusRd/BusRdX/BusUpgr`, el bus notifique `onSnoop` a los demás caches.
-   - El bus resuelva `Data` (memoria o Flush de otro PE) y llame `onDataResponse(addr, line, shared)`.
-2. **shared** en `onDataResponse`:
-   - `true` si hubo otro poseedor (S/E/M) ⇒ instala `S`.
-   - `false` si exclusivo ⇒ instala `E`.
+1. **Registrar cada L1$** en el interconect:
+   - El L1$ emite `BusRd` / `BusRdX` / `BusUpgr`.
+   - El interconect llama `onSnoop(...)` en los demás L1$ y resuelve datos (memoria o `Flush` de un peer).
+   - Al entregar datos, invoca `onDataResponse(addr, line, shared)`.
+2. **Instalación E/S en `onDataResponse`**:
+   - `shared = true` ⇒ instala en **S**.
+   - `shared = false` ⇒ instala en **E**.
 3. **Evicción**:
-   - Si la víctima está `M`, se emite `Flush` (write-back) antes de sobrescribir.
+   - Si la víctima está en **M**, se emite **`Flush`** (write-back) antes de sobrescribir.
 
-## Compilar
-```bash
+## Compilar (Windows PowerShell)
+```powershell
+# Crear build
+mkdir cmake-build-debug
+cd cmake-build-debug
+cmake ..
+cmake --build . --target mp_main -j 8
 
-   mkdir -p build && cd build
-   cmake ..
-   make -j$(nproc)
-   ./dotprod_mesi
+# (opcional) también puedes compilar el ejecutable “solo dot product”
+cmake --build . --target dotprod_mesi -j 8
 
+# Demo (stepping + CSV con métricas)
+.\cmake-build-debug\mp_main.exe --mode=demo
 
+# Sin pausas:
+.\cmake-build-debug\mp_main.exe --mode=demo --nostep
+
+# Problema final: producto punto en doble precisión (N=248)
+.\cmake-build-debug\mp_main.exe --mode=dot --N=248
+# salida esperada: PASS dotprod with MESI
+
+# (opcional) entorno virtual
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install pandas matplotlib
+
+# generar figuras
+python .\metrics.py
