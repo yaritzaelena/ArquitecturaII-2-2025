@@ -10,8 +10,8 @@
 
 static_assert(MESICache::kLineSize == 32, "Se espera línea de 32 bytes");
 
-MesiInterconnect::MesiInterconnect(size_t /*dram_bytes*/) {
-  // Sin DRAM interna: todo va a SharedMemory
+MesiInterconnect::MesiInterconnect(size_t ) {
+ 
 }
 
 void MesiInterconnect::connect(MESICache* c) {
