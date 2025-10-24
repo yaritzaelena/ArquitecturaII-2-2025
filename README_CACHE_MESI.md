@@ -28,13 +28,14 @@ Este módulo implementa una caché por PE con coherencia **MESI**, cumpliendo la
 3. **Evicción**:
    - Si la víctima está en **M**, se emite **`Flush`** (write-back) antes de sobrescribir.
 
-## Compilar (Windows PowerShell)
-```powershell
+## Compilar (Windows CMD)
+```CMD
 # Crear build
-mkdir cmake-build-debug
-cd cmake-build-debug
+rmdir /s /q build
+mkdir build
+cd build
 cmake ..
-cmake --build . --target mp_main -j 8
+cmake --build . --config Debug
 
 # (opcional) también puedes compilar el ejecutable “solo dot product”
 cmake --build . --target dotprod_mesi -j 8
