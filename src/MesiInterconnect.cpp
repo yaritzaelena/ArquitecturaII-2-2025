@@ -1,7 +1,7 @@
 #include "MesiInterconnect.hpp"
 #include "../src/memory/SharedMemory.h" 
 #include "../src/memory/cache/mesi/MESICache.hpp"  
-#include "../src/utils/Stepper.hpp"     // ✅ Nuevo include
+#include "../src/utils/Stepper.hpp"     
 
 #include <memory>
 #include <cstring>
@@ -85,7 +85,7 @@ void MesiInterconnect::emit(const BusTransaction& t) {
     // Persistir al backing store real (SharedMemory)
     write_line_to_mem_(b, slot.data());
 
-    // ✅ Stepping opcional
+   
     if (stepper_) stepper_->pause("Flush", caches_, shm_);
     return;
   }
@@ -93,7 +93,7 @@ void MesiInterconnect::emit(const BusTransaction& t) {
   // B) Snoop a las demás cachés (invalidaciones/observaciones)
   snoop_others_(t);
 
-  // ✅ Pausa si hay invalidaciones o actualizaciones
+
   if (t.type == BusMsg::Inv || t.type == BusMsg::BusUpgr) {
     if (stepper_) stepper_->pause(
       (t.type == BusMsg::Inv) ? "Inv" : "BusUpgr", caches_, shm_);
@@ -117,7 +117,7 @@ void MesiInterconnect::emit(const BusTransaction& t) {
       read_line_from_mem_(b, line.data());
     }
 
-    // ✅ Stepping opcional en eventos BusRd o BusRdX
+
     if (stepper_) stepper_->pause(
       (t.type == BusMsg::BusRd) ? "BusRd" : "BusRdX", caches_, shm_);
 
