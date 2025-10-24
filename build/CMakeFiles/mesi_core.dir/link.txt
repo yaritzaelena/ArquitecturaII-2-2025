@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmesi_core.a CMakeFiles/mesi_core.dir/src/memory/cache/mesi/MESICache.cpp.o CMakeFiles/mesi_core.dir/src/MesiInterconnect.cpp.o CMakeFiles/mesi_core.dir/src/memory/SharedMemory.cpp.o
+/usr/bin/ranlib libmesi_core.a
