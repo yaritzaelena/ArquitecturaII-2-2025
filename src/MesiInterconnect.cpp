@@ -68,7 +68,7 @@ void MesiInterconnect::write_line_to_mem_(uint64_t b, const uint8_t* in) {
   req->payload.write_mem.size    = MESICache::kLineSize;
   req->data_write.assign(in, in + MESICache::kLineSize);
 
-  // Tu SharedMemory es síncrona; la respuesta no es necesaria
+  // SharedMemory es síncrona
   shm_->handle_message(req, [&](MessageP /*resp*/) {});
 }
 
